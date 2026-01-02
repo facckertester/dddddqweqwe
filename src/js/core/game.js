@@ -9,6 +9,7 @@ class Game {
         // Привязка контекста
         this.saveGame = this.saveGame.bind(this);
         this.loadGame = this.loadGame.bind(this);
+        this.dailyUpdates = this.dailyUpdates.bind(this);
     }
     
     init(uiManager, saveSystem) {
@@ -24,6 +25,7 @@ class Game {
         this.modules.inventory = new InventoryModule(this);
         this.modules.orders = new OrdersModule(this);
         this.modules.reforge = new ReforgeModule(this);
+        this.modules.trading = new TradingModule(this); // ← ДОБАВИЛИ ТОРГОВЛЮ
         
         // Обновляем таймеры заказов при загрузке
         if (this.modules.orders && this.modules.orders.updateOrderTimers) {
@@ -36,8 +38,15 @@ class Game {
         // Автосохранение каждые 60 секунд
         setInterval(this.saveGame, 60000);
         
+        // Ежедневные обновления каждые 10 секунд (для теста)
+        // В реальной игре это должно быть 24 часа
+        setInterval(this.dailyUpdates, 10000);
+        
         // Генерация ежедневных заказов
         this.generateDailyOrders();
+        
+        // Ежедневное обновление торговли
+        this.dailyTradingUpdate();
         
         console.log('Игра инициализирована');
     }
@@ -56,6 +65,31 @@ class Game {
         }
     }
     
+    // Ежедневное обновление торговли
+    dailyTradingUpdate() {
+        const lastTradeUpdate = this.state.gameState.lastTradeUpdate || 0;
+        const oneDay = 24 * 60 * 60 * 1000;
+        
+        if (Date.now() - lastTradeUpdate >= oneDay) {
+            if (this.modules.trading && this.modules.trading.dailyUpdate) {
+                this.modules.trading.dailyUpdate();
+                this.state.gameState.lastTradeUpdate = Date.now();
+                
+                // Увеличиваем игровой день
+                this.state.gameState.currentDay = (this.state.gameState.currentDay || 1) + 1;
+                
+                // Обновляем UI
+                this.updateUI();
+            }
+        }
+    }
+    
+    // Все ежедневные обновления
+    dailyUpdates() {
+        this.generateDailyOrders();
+        this.dailyTradingUpdate();
+    }
+    
     loadGame() {
         const saved = this.saveSystem.loadGame();
         if (saved && this.saveSystem.validateSave(saved)) {
@@ -64,9 +98,24 @@ class Game {
         } else {
             this.state = JSON.parse(JSON.stringify(INITIAL_STATE));
             
-            // Гарантируем, что orders существует
+            // Гарантируем, что все необходимые поля существуют
+            if (!this.state.gameState) {
+                this.state.gameState = {};
+            }
             if (!this.state.gameState.orders) {
                 this.state.gameState.orders = [];
+            }
+            if (!this.state.gameState.marketPrices) {
+                this.state.gameState.marketPrices = {};
+            }
+            if (!this.state.gameState.currentDay) {
+                this.state.gameState.currentDay = 1;
+            }
+            if (!this.state.gameState.lastOrderGeneration) {
+                this.state.gameState.lastOrderGeneration = 0;
+            }
+            if (!this.state.gameState.lastTradeUpdate) {
+                this.state.gameState.lastTradeUpdate = 0;
             }
             
             console.log('Создана новая игра');
@@ -191,6 +240,53 @@ class Game {
             return true;
         }
         return false;
+    }
+    
+    // Новый метод: обработка продаж с витрины
+    processShowroomSales() {
+        if (this.modules.trading && this.modules.trading.processShowroomSales) {
+            return this.modules.trading.processShowroomSales();
+        }
+        return [];
+    }
+    
+    // Новый метод: покупка ресурсов
+    buyResources(merchantId, resourceId, amount) {
+        if (this.modules.trading && this.modules.trading.buyResources) {
+            return this.modules.trading.buyResources(merchantId, resourceId, amount);
+        }
+        return false;
+    }
+    
+    // Новый метод: продажа предмета торговцу
+    sellItemToMerchant(merchantId, itemId) {
+        if (this.modules.trading && this.modules.trading.sellItemToMerchant) {
+            return this.modules.trading.sellItemToMerchant(merchantId, itemId);
+        }
+        return false;
+    }
+    
+    // Новый метод: обновление рыночных цен
+    updateMarketPrices(force = false) {
+        if (this.modules.trading && this.modules.trading.updateMarketPrices) {
+            this.modules.trading.updateMarketPrices(force);
+        }
+    }
+    
+    // Новый метод: получение доступных торговцев
+    getAvailableMerchants() {
+        if (this.modules.trading && this.modules.trading.getAvailableMerchants) {
+            return this.modules.trading.getAvailableMerchants();
+        }
+        return [];
+    }
+    
+    // Новый метод: получение торговца по ID
+    getMerchant(merchantId) {
+        if (this.modules.trading && this.modules.trading.getMerchant) {
+            return this.modules.trading.getMerchant(merchantId);
+        }
+        return null;
     }
 }
 

@@ -670,6 +670,435 @@ class UIManager {
         }
     }
     
+// В uiManager.js добавляем метод loadShopScreen:
+loadShopScreen() {
+    const content = document.getElementById('shop-content');
+    
+    content.innerHTML = `
+        <div class="shop-layout">
+            <div class="shop-tabs">
+                <button class="shop-tab active" data-tab="buy">Покупка ресурсов</button>
+                <button class="shop-tab" data-tab="sell">Продажа предметов</button>
+                <button class="shop-tab" data-tab="showroom">Витрина</button>
+                <button class="shop-tab" data-tab="merchants">Торговцы</button>
+            </div>
+            
+            <div class="shop-content">
+                <div id="shop-buy-tab" class="shop-tab-content active">
+                    <h3><i class="fas fa-shopping-cart"></i> Покупка ресурсов</h3>
+                    <div id="buy-resources-container" class="resources-grid"></div>
+                </div>
+                
+                <div id="shop-sell-tab" class="shop-tab-content">
+                    <h3><i class="fas fa-coins"></i> Продажа предметов</h3>
+                    <div id="sell-items-container" class="items-grid"></div>
+                </div>
+                
+                <div id="shop-showroom-tab" class="shop-tab-content">
+                    <h3><i class="fas fa-store"></i> Витрина</h3>
+                    <div class="showroom-info">
+                        <p>Предметы на витрине продаются автоматически. Шанс продажи зависит от качества и цены.</p>
+                        <div class="showroom-stats">
+                            <span>Предметов на витрине: <span id="showroom-count">0</span></span>
+                            <button id="process-sales-btn" class="btn-secondary">
+                                <i class="fas fa-bolt"></i> Проверить продажи
+                            </button>
+                        </div>
+                    </div>
+                    <div id="showroom-container" class="items-grid"></div>
+                </div>
+                
+                <div id="shop-merchants-tab" class="shop-tab-content">
+                    <h3><i class="fas fa-users"></i> Торговцы</h3>
+                    <div id="merchants-container" class="merchants-grid"></div>
+                </div>
+            </div>
+            
+            <div class="shop-sidebar">
+                <div class="market-info">
+                    <h4><i class="fas fa-chart-line"></i> Рынок</h4>
+                    <div class="market-stats">
+                        <div>Ваше золото: <strong id="shop-gold">${this.game.player.gold}</strong></div>
+                        <div>День: <strong>${this.game.gameState.currentDay}</strong></div>
+                        <button id="update-prices-btn" class="btn-secondary btn-sm">
+                            <i class="fas fa-sync"></i> Обновить цены
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="price-history">
+                    <h4>Изменение цен:</h4>
+                    <div id="price-changes"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Инициализируем вкладки
+    this.setupShopTabs();
+    
+    // Загружаем контент
+    this.updateShopBuyTab();
+    this.updateShopSellTab();
+    this.updateShowroomTab();
+    this.updateMerchantsTab();
+    
+    // Добавляем обработчики
+    this.setupShopEventListeners();
+}
+
+setupShopTabs() {
+    document.querySelectorAll('.shop-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            const tabId = e.currentTarget.dataset.tab;
+            
+            // Убираем активные классы
+            document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.shop-tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Добавляем активные классы
+            e.currentTarget.classList.add('active');
+            document.getElementById(`shop-${tabId}-tab`).classList.add('active');
+        });
+    });
+}
+
+updateShopBuyTab() {
+    const container = document.getElementById('buy-resources-container');
+    if (!container || !this.game.modules.trading) return;
+    
+    const prices = this.game.gameState.marketPrices || {};
+    const merchant = this.game.modules.trading.getMerchant('blacksmith_supplier');
+    
+    let html = '';
+    
+    if (merchant && merchant.inventory) {
+        merchant.inventory.forEach(resourceId => {
+            const resource = RESOURCES[resourceId];
+            if (!resource) return;
+            
+            const price = this.game.modules.trading.getResourcePrice(resourceId);
+            const merchantPrice = Math.round(price * (merchant.markup || 1.2));
+            const playerGold = this.game.player.gold;
+            const canAfford = playerGold >= merchantPrice;
+            
+            html += `
+                <div class="resource-card ${canAfford ? 'can-buy' : 'cannot-buy'}">
+                    <div class="resource-header">
+                        <i class="${resource.icon}"></i>
+                        <h4>${resource.name}</h4>
+                        <span class="resource-tier">Тир ${resource.tier}</span>
+                    </div>
+                    <div class="resource-info">
+                        <p class="resource-description">${resource.description}</p>
+                        <div class="resource-price">
+                            <span>Цена: ${merchantPrice} золота</span>
+                            <span class="base-price">(Базовая: ${price})</span>
+                        </div>
+                    </div>
+                    <div class="resource-actions">
+                        <div class="quantity-selector">
+                            <button class="qty-btn minus" data-resource="${resourceId}">-</button>
+                            <input type="number" class="qty-input" id="qty-${resourceId}" value="1" min="1" max="100">
+                            <button class="qty-btn plus" data-resource="${resourceId}">+</button>
+                        </div>
+                        <button class="btn-primary buy-btn" 
+                                data-resource="${resourceId}" 
+                                data-merchant="blacksmith_supplier"
+                                ${!canAfford ? 'disabled' : ''}>
+                            ${canAfford ? 'Купить' : 'Недостаточно золота'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    container.innerHTML = html || '<p>Нет доступных ресурсов для покупки</p>';
+    
+    // Добавляем обработчики количества
+    document.querySelectorAll('.qty-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const resourceId = e.currentTarget.dataset.resource;
+            const input = document.getElementById(`qty-${resourceId}`);
+            let value = parseInt(input.value) || 1;
+            
+            if (e.currentTarget.classList.contains('plus')) {
+                value = Math.min(100, value + 1);
+            } else {
+                value = Math.max(1, value - 1);
+            }
+            
+            input.value = value;
+        });
+    });
+    
+    // Добавляем обработчики покупки
+    document.querySelectorAll('.buy-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const resourceId = e.currentTarget.dataset.resource;
+            const merchantId = e.currentTarget.dataset.merchant;
+            const input = document.getElementById(`qty-${resourceId}`);
+            const amount = parseInt(input.value) || 1;
+            
+            this.game.modules.trading.buyResources(merchantId, resourceId, amount);
+            this.updateShopBuyTab();
+            this.updateShopGold();
+        });
+    });
+}
+
+updateShopSellTab() {
+    const container = document.getElementById('sell-items-container');
+    if (!container) return;
+    
+    const items = this.game.modules.inventory.getItemsForDisplay();
+    
+    if (items.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>Нет предметов для продажи</p></div>';
+        return;
+    }
+    
+    let html = '';
+    
+    // Группируем торговцев
+    const merchants = this.game.modules.trading.getAvailableMerchants().filter(m => m.type === 'buyer');
+    
+    items.forEach(item => {
+        const quality = QUALITIES[item.quality - 1];
+        
+        html += `
+            <div class="sell-item-card">
+                <div class="item-header">
+                    <div class="item-name" style="color: ${quality.color}">${item.name}</div>
+                    <div class="item-base-value">${item.value} золота</div>
+                </div>
+                
+                <div class="item-stats">
+                    ${Object.entries(item.stats).slice(0, 2).map(([key, val]) => 
+                        `<span class="stat">${key}: ${val}</span>`
+                    ).join('')}
+                </div>
+                
+                <div class="merchant-offers">
+                    ${merchants.map(merchant => {
+                        if (!this.game.modules.trading.isItemSuitableForMerchant(merchant, item)) {
+                            return '';
+                        }
+                        
+                        const offer = this.game.modules.trading.calculateMerchantPrice(merchant, item);
+                        const canSell = merchant.budget >= offer;
+                        
+                        return `
+                            <div class="merchant-offer ${canSell ? 'can-sell' : 'cannot-sell'}">
+                                <div class="merchant-info">
+                                    <i class="fas fa-user"></i>
+                                    <span>${merchant.name}</span>
+                                </div>
+                                <div class="offer-price">${offer} золота</div>
+                                <button class="btn-secondary btn-sm sell-to-merchant-btn"
+                                        data-item="${item.id}"
+                                        data-merchant="${merchant.id}"
+                                        ${!canSell ? 'disabled' : ''}>
+                                    ${canSell ? 'Продать' : 'Нет бюджета'}
+                                </button>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                
+                <div class="quick-sell">
+                    <button class="btn-primary quick-sell-btn" data-item="${item.id}">
+                        Быстрая продажа (${Math.round(item.value * 0.7)} золота)
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    
+    // Добавляем обработчики
+    document.querySelectorAll('.sell-to-merchant-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const itemId = e.currentTarget.dataset.item;
+            const merchantId = e.currentTarget.dataset.merchant;
+            
+            this.game.modules.trading.sellItemToMerchant(merchantId, itemId);
+            this.updateShopSellTab();
+            this.updateShopGold();
+            this.updateMerchantsTab();
+        });
+    });
+    
+    document.querySelectorAll('.quick-sell-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const itemId = e.currentTarget.dataset.item;
+            const price = Math.round(this.game.modules.inventory.getItemById(itemId).value * 0.7);
+            
+            if (confirm(`Продать за ${price} золота?`)) {
+                this.game.modules.inventory.sellItem(itemId, 0.7);
+                this.updateShopSellTab();
+                this.updateShopGold();
+            }
+        });
+    });
+}
+
+updateShowroomTab() {
+    const container = document.getElementById('showroom-container');
+    const countElement = document.getElementById('showroom-count');
+    
+    if (!container) return;
+    
+    const showroomItems = this.game.forge.showroom.map(id => 
+        this.game.modules.inventory.getItemById(id)
+    ).filter(item => item);
+    
+    if (countElement) {
+        countElement.textContent = showroomItems.length;
+    }
+    
+    if (showroomItems.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>Витрина пуста</p></div>';
+        return;
+    }
+    
+    let html = showroomItems.map(item => {
+        const quality = QUALITIES[item.quality - 1];
+        
+        return `
+            <div class="showroom-item">
+                <div class="item-preview">
+                    <div class="item-name" style="color: ${quality.color}">${item.name}</div>
+                    <div class="item-value">${item.value} золота</div>
+                </div>
+                <div class="showroom-actions">
+                    <button class="btn-secondary remove-from-showroom-btn" data-item="${item.id}">
+                        <i class="fas fa-times"></i> Убрать
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = html;
+    
+    // Обработчики для кнопок
+    document.querySelectorAll('.remove-from-showroom-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const itemId = e.currentTarget.dataset.item;
+            this.game.modules.inventory.removeFromShowroom(itemId);
+            this.updateShowroomTab();
+        });
+    });
+}
+
+updateMerchantsTab() {
+    const container = document.getElementById('merchants-container');
+    if (!container || !this.game.modules.trading) return;
+    
+    const merchants = this.game.modules.trading.getAvailableMerchants();
+    
+    if (merchants.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>Нет доступных торговцев</p></div>';
+        return;
+    }
+    
+    let html = merchants.map(merchant => {
+        const isUnlocked = merchant.unlocked;
+        const reputation = merchant.reputation || 0;
+        
+        return `
+            <div class="merchant-card ${isUnlocked ? 'unlocked' : 'locked'}">
+                <div class="merchant-header">
+                    <div class="merchant-icon">
+                        <i class="fas fa-${merchant.type === 'resource' ? 'shopping-cart' : 'coins'}"></i>
+                    </div>
+                    <div class="merchant-info">
+                        <h4>${merchant.name}</h4>
+                        <p class="merchant-type">${merchant.type === 'resource' ? 'Продавец' : 'Покупатель'}</p>
+                    </div>
+                    <div class="merchant-status">
+                        ${isUnlocked ? 
+                            '<span class="status-unlocked"><i class="fas fa-check"></i> Доступен</span>' : 
+                            `<span class="status-locked">Требуется: ${merchant.reputation} репутации</span>`
+                        }
+                    </div>
+                </div>
+                
+                <div class="merchant-body">
+                    <p class="merchant-description">${merchant.description}</p>
+                    
+                    <div class="merchant-stats">
+                        <div class="stat">
+                            <span>Репутация:</span>
+                            <span class="reputation-value">${reputation}</span>
+                        </div>
+                        
+                        ${merchant.type === 'buyer' ? `
+                            <div class="stat">
+                                <span>Бюджет:</span>
+                                <span class="budget-value">${merchant.budget} золота</span>
+                            </div>
+                        ` : `
+                            <div class="stat">
+                                <span>Наценка:</span>
+                                <span class="markup-value">${Math.round((merchant.markup - 1) * 100)}%</span>
+                            </div>
+                        `}
+                    </div>
+                </div>
+                
+                ${merchant.type === 'resource' && merchant.inventory ? `
+                    <div class="merchant-inventory">
+                        <h5>Ассортимент:</h5>
+                        <div class="inventory-items">
+                            ${merchant.inventory.map(resId => {
+                                const res = RESOURCES[resId];
+                                return res ? `<span class="inventory-item">${res.name}</span>` : '';
+                            }).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = html;
+}
+
+updateShopGold() {
+    const goldElement = document.getElementById('shop-gold');
+    if (goldElement) {
+        goldElement.textContent = this.game.player.gold;
+    }
+}
+
+setupShopEventListeners() {
+    // Кнопка обновления цен
+    document.getElementById('update-prices-btn')?.addEventListener('click', () => {
+        if (this.game.modules.trading) {
+            this.game.modules.trading.updateMarketPrices(true);
+            this.showNotification('Цены обновлены', 'info');
+            this.updateShopBuyTab();
+        }
+    });
+    
+    // Кнопка проверки продаж
+    document.getElementById('process-sales-btn')?.addEventListener('click', () => {
+        if (this.game.modules.trading) {
+            const soldItems = this.game.modules.trading.processShowroomSales();
+            this.updateShowroomTab();
+            this.updateShopGold();
+            
+            if (soldItems.length > 0) {
+                this.showNotification(`Продано ${soldItems.length} предметов с витрины!`, 'success');
+            }
+        }
+    });
+}
+
     // Обновляем метод switchScreen для загрузки контента горна
     loadScreenContent(screenName) {
         const contentElement = document.getElementById(`${screenName}-content`);

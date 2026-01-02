@@ -884,3 +884,373 @@ body {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+/* Добавляем в style.css */
+
+/* Вкладки магазина */
+.shop-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: 5px;
+}
+
+.shop-tab {
+    padding: 10px 20px;
+    background: var(--color-card);
+    border: none;
+    border-radius: 4px 4px 0 0;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.shop-tab:hover {
+    background: var(--color-primary);
+}
+
+.shop-tab.active {
+    background: var(--color-secondary);
+    color: #000;
+    font-weight: 500;
+}
+
+.shop-tab-content {
+    display: none;
+}
+
+.shop-tab-content.active {
+    display: block;
+}
+
+/* Сетка магазина */
+.shop-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+}
+
+@media (max-width: 992px) {
+    .shop-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Карточки ресурсов */
+.resources-grid, .items-grid, .merchants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.resource-card {
+    background: linear-gradient(145deg, #3a3a3a, #2d2d2d);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    border: 2px solid var(--color-primary);
+}
+
+.resource-card.can-buy {
+    border-color: var(--color-success);
+}
+
+.resource-card.cannot-buy {
+    border-color: var(--color-danger);
+    opacity: 0.7;
+}
+
+.resource-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.resource-header i {
+    font-size: 1.5rem;
+    color: var(--color-secondary);
+}
+
+.resource-tier {
+    background: var(--color-dark);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    margin-left: auto;
+}
+
+.resource-price {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.base-price {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+
+.resource-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.qty-btn {
+    width: 30px;
+    height: 30px;
+    background: var(--color-dark);
+    border: 1px solid var(--color-primary);
+    color: var(--color-text);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.qty-btn:hover {
+    background: var(--color-primary);
+}
+
+.qty-input {
+    width: 50px;
+    height: 30px;
+    text-align: center;
+    background: var(--color-card);
+    border: 1px solid var(--color-primary);
+    color: var(--color-text);
+    border-radius: 4px;
+}
+
+/* Карточки продажи */
+.sell-item-card {
+    background: linear-gradient(145deg, #3a3a3a, #2d2d2d);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    border: 2px solid var(--color-primary);
+    margin-bottom: 15px;
+}
+
+.merchant-offers {
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.merchant-offer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    margin-bottom: 5px;
+    background: rgba(139, 69, 19, 0.1);
+    border-radius: 4px;
+}
+
+.merchant-offer.can-sell {
+    border-left: 3px solid var(--color-success);
+}
+
+.merchant-offer.cannot-sell {
+    border-left: 3px solid var(--color-danger);
+    opacity: 0.6;
+}
+
+.merchant-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.merchant-info i {
+    color: var(--color-secondary);
+}
+
+.offer-price {
+    font-weight: 500;
+    color: var(--color-secondary);
+}
+
+.quick-sell {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-primary);
+}
+
+/* Витрина */
+.showroom-info {
+    background: rgba(184, 134, 11, 0.1);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+}
+
+.showroom-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.showroom-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius);
+    margin-bottom: 8px;
+    border: 1px solid var(--color-primary);
+}
+
+/* Карточки торговцев */
+.merchant-card {
+    background: linear-gradient(145deg, #3a3a3a, #2d2d2d);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    border: 2px solid var(--color-primary);
+}
+
+.merchant-card.unlocked {
+    border-color: var(--color-success);
+}
+
+.merchant-card.locked {
+    border-color: var(--color-danger);
+    opacity: 0.6;
+}
+
+.merchant-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-primary);
+}
+
+.merchant-icon {
+    font-size: 2rem;
+    color: var(--color-secondary);
+}
+
+.merchant-info {
+    flex: 1;
+}
+
+.merchant-type {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+
+.merchant-status {
+    font-size: 0.9rem;
+}
+
+.status-unlocked {
+    color: var(--color-success);
+}
+
+.status-locked {
+    color: var(--color-danger);
+}
+
+.merchant-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.merchant-stats .stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.reputation-value {
+    color: var(--color-success);
+    font-weight: 500;
+}
+
+.budget-value {
+    color: var(--color-secondary);
+    font-weight: 500;
+}
+
+.markup-value {
+    color: var(--color-accent);
+    font-weight: 500;
+}
+
+.merchant-inventory {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--color-primary);
+}
+
+.inventory-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.inventory-item {
+    background: rgba(139, 69, 19, 0.2);
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+/* Боковая панель магазина */
+.shop-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.market-info {
+    background: linear-gradient(145deg, #3a3a3a, #2d2d2d);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    border: 2px solid var(--color-primary);
+}
+
+.market-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.price-history {
+    background: linear-gradient(145deg, #3a3a3a, #2d2d2d);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    border: 2px solid var(--color-primary);
+}
+
+#price-changes {
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.9rem;
+}
