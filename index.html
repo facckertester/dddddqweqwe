@@ -1,437 +1,154 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>График точек</title>
-  <style>
-    :root {
-      --bg: #f0f4f8;
-      --fg: #333;
-      --container-bg: #fff;
-      --input-bg: #fff;
-      --input-border: #ccc;
-      --button-bg: #007bff;
-      --button-fg: white;
-    }
-    body.dark {
-      --bg: #1e1e1e;
-      --fg: #f0f0f0;
-      --container-bg: #2a2a2a;
-      --input-bg: #333;
-      --input-border: #666;
-      --button-bg: #444;
-      --button-fg: #f0f0f0;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 1rem;
-      background: var(--bg);
-      color: var(--fg);
-      transition: all 0.3s ease;
-    }
-    .container {
-      max-width: 500px;
-      margin: auto;
-      background: var(--container-bg);
-      padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      transition: background 0.3s ease;
-    }
-    h2, h3 {
-      text-align: center;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-    }
-    input, select, button {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 10px;
-      font-size: 1rem;
-      border-radius: 5px;
-      border: 1px solid var(--input-border);
-      background: var(--input-bg);
-      color: var(--fg);
-    }
-    button {
-      background: var(--button-bg);
-      color: var(--button-fg);
-      border: none;
-      margin-top: 1rem;
-      cursor: pointer;
-    }
-    #assignments > div {
-      margin-bottom: 1.5em;
-    }
-    button:disabled {
-      background: #aaa;
-      cursor: not-allowed;
-    }
-    .entry {
-      background: #f9f9f9;
-      padding: 5px 10px;
-      border-radius: 5px;
-      margin-top: 5px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: #000;
-    }
-    .entry span {
-      flex: 1;
-    }
-    .admin-section {
-      margin-top: 2rem;
-      border-top: 1px solid #ccc;
-      padding-top: 1rem;
-    }
-    .week-selector {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      margin-bottom: 1rem;
-    }
-    .week-selector button {
-      flex: 1;
-      height: 44px;
-      padding: 0;
-      font-size: 0.9rem;
-      max-width: 80px;
-    }
-    .week-selector input {
-      height: 44px;
-      text-align: center;
-      font-weight: bold;
-      flex: 2;
-      border-radius: 5px;
-    }
-    .edit-btn {
-      margin-left: 10px;
-      font-size: 1.1rem;
-      background: none;
-      border: none;
-      color: #007bff;
-      cursor: pointer;
-    }
-    .edit-btn:hover {
-      color: #0056b3;
-    }
-    .danger {
-      color: #dc3545;
-    }
-    .theme-toggle {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .theme-toggle button {
-      width: auto;
-      padding: 8px 16px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кузница Судьбы</title>
+    <link rel="stylesheet" href="src/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <div class="theme-toggle">
-      <button onclick="toggleTheme()" id="themeBtn">Тёмная тема</button>
+    <div id="game-container">
+        <header id="game-header">
+            <div class="header-left">
+                <h1><i class="fas fa-hammer"></i> Кузница Судьбы</h1>
+            </div>
+            <div class="header-right">
+                <div class="stat">
+                    <i class="fas fa-coins"></i>
+                    <span id="gold-amount">100</span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-gem"></i>
+                    <span id="player-level">1</span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-calendar-day"></i>
+                    <span id="game-day">1</span>
+                </div>
+            </div>
+        </header>
+
+        <main id="game-main">
+            <nav id="game-nav">
+                <button class="nav-btn active" data-screen="forge">
+                    <i class="fas fa-fire"></i>
+                    <span>Кузница</span>
+                </button>
+                <button class="nav-btn" data-screen="reforge">
+                    <i class="fas fa-temperature-high"></i>
+                    <span>Горн</span>
+                </button>
+                <button class="nav-btn" data-screen="shop">
+                    <i class="fas fa-store"></i>
+                    <span>Лавка</span>
+                </button>
+                <button class="nav-btn" data-screen="orders">
+                    <i class="fas fa-scroll"></i>
+                    <span>Заказы</span>
+                </button>
+                <button class="nav-btn" data-screen="character">
+                    <i class="fas fa-user"></i>
+                    <span>Характеристики</span>
+                </button>
+                <button class="nav-btn" data-screen="upgrade">
+                    <i class="fas fa-tools"></i>
+                    <span>Улучшения</span>
+                </button>
+            </nav>
+
+            <section id="game-content">
+                <div id="forge-screen" class="screen active">
+                    <h2><i class="fas fa-anvil"></i> Кузница</h2>
+                    <div id="forge-content"></div>
+                </div>
+
+                <div id="reforge-screen" class="screen">
+                    <h2><i class="fas fa-temperature-high"></i> Горн</h2>
+                    <div id="reforge-content"></div>
+                </div>
+
+                <div id="shop-screen" class="screen">
+                    <h2><i class="fas fa-store"></i> Лавка</h2>
+                    <div id="shop-content"></div>
+                </div>
+
+                <div id="orders-screen" class="screen">
+                    <h2><i class="fas fa-scroll"></i> Заказы</h2>
+                    <div id="orders-content"></div>
+                </div>
+
+                <div id="character-screen" class="screen">
+                    <h2><i class="fas fa-user"></i> Характеристики</h2>
+                    <div id="character-content"></div>
+                </div>
+
+                <div id="upgrade-screen" class="screen">
+                    <h2><i class="fas fa-tools"></i> Улучшения</h2>
+                    <div id="upgrade-content"></div>
+                </div>
+            </section>
+
+            <aside id="game-sidebar">
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-box-open"></i> Инвентарь</h3>
+                    <div id="inventory-resources">
+                        <!-- Ресурсы загружаются через JS -->
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-shield-alt"></i> Предметы</h3>
+                    <div id="inventory-items">
+                        <!-- Предметы загружаются через JS -->
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <footer id="game-footer">
+            <div id="notification-area">
+                <div class="notification">Добро пожаловать в Кузницу Судьбы!</div>
+            </div>
+        </footer>
     </div>
 
-    <h2>График по неделям</h2>
-
-    <div class="week-selector">
-      <button onclick="changeWeek(-1)">← пред. неделя</button>
-      <input type="text" id="week" readonly>
-      <button onclick="changeWeek(1)">след. неделя →</button>
+    <div id="modal-overlay" class="hidden"></div>
+    
+    <div id="craft-modal" class="modal hidden">
+        <div class="modal-header">
+            <h3 id="craft-modal-title">Ковка предмета</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="craft-preview"></div>
+            <div id="craft-options"></div>
+        </div>
+        <div class="modal-footer">
+            <button id="start-craft-btn" class="btn-primary">Начать ковку</button>
+            <button id="cancel-craft-btn" class="btn-secondary">Отмена</button>
+        </div>
     </div>
 
-    <label for="name">Имя:</label>
-    <input type="text" id="name" autocomplete="off" />
+    <!-- ТОСТ КОНТЕЙНЕР -->
+    <div id="toast-container"></div>
 
-    <label for="day">День недели:</label>
-    <select id="day">
-      <option value="">Выберите день</option>
-      <option>Понедельник</option>
-      <option>Вторник</option>
-      <option>Среда</option>
-      <option>Четверг</option>
-      <option>Пятница</option>
-      <option>Суббота</option>
-      <option>Воскресенье</option>
-    </select>
-
-    <label for="point">Точка:</label>
-    <select id="point">
-      <option value="">Выберите точку</option>
-      <option>Вата - Мороженое</option>
-      <option>Батут</option>
-      <option>Машинки - Лабиринт</option>
-      <option>Аркада - Тир</option>
-    </select>
-
-    <button onclick="assignPoint()">Записаться</button>
-
-    <h3>Назначения</h3>
-    <div id="assignments"></div>
-
-    <div class="admin-section">
-      <label for="adminPass">Пароль администратора:</label>
-      <input type="password" id="adminPass" autocomplete="off" />
-      <button onclick="checkAdmin()">Войти как админ</button>
-
-      <div id="adminControls" style="display:none;">
-        <button onclick="resetWeek()" style="background:#dc3545;">Сбросить неделю</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbybL2_H3XqseobbTI2BReWuc0azQoaNrAgz8GgWG6WpRl8hxTJizSXzaYeqBoOar3L9XQ/exec';
-    const password = "2808";
-    let isAdmin = false;
-    let weekOffset = 0;
-    let Schedule = {};
-    let currentWeekKey = "";
-
-    const daysOrder = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
-
-    function getMonday(d, offset = 0) {
-      const date = new Date(d);
-      const day = date.getDay();
-      const diff = date.getDate() - (day === 0 ? 6 : day - 1) + offset * 7;
-      return new Date(date.setDate(diff));
-    }
-
-    function getWeekKey(mondayDate) {
-      return mondayDate.toISOString().split("T")[0];
-    }
-
-    function getMonthName(date) {
-      return date.toLocaleString("ru-RU", { month: "long" });
-    }
-
-    function formatWeek(mondayDate) {
-      const sunday = new Date(mondayDate);
-      sunday.setDate(mondayDate.getDate() + 6);
-      return `${mondayDate.getDate()} ${getMonthName(mondayDate)} — ${sunday.getDate()} ${getMonthName(sunday)}`;
-    }
-
-    async function loadSchedule() {
-      const monday = getMonday(new Date(), weekOffset);
-      currentWeekKey = getWeekKey(monday);
-      document.getElementById("week").value = formatWeek(monday);
-
-      try {
-        const response = await fetch(GAS_URL + `?action=get&week=${currentWeekKey}`);
-        const data = await response.json();
-        Schedule = data.Schedule || {};
-        updateDisplay();
-      } catch (e) {
-        alert("Ошибка загрузки расписания: " + e.message);
-        Schedule = {};
-        updateDisplay();
-      }
-    }
-
-    async function saveSchedule() {
-      try {
-        const response = await fetch(GAS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'save', week: currentWeekKey, Schedule })
-        });
-        const data = await response.json();
-        if (!data.success) alert("Ошибка сохранения: " + (data.message || "Неизвестно"));
-      } catch (e) {
-        alert("Ошибка сохранения: " + e.message);
-      }
-    }
-
-    function updateDisplay() {
-      const output = document.getElementById("assignments");
-      output.innerHTML = "";
-
-      daysOrder.forEach(day => {
-        if (!e[day]) return;
-
-        const points = e[day];
-        const dayBlock = document.createElement("div");
-        dayBlock.innerHTML = `<strong>${day}:</strong>`;
-
-        Object.keys(points).forEach(pt => {
-          const entry = document.createElement("div");
-          entry.className = "entry";
-
-          const span = document.createElement("span");
-          span.textContent = `${pt} — ${points[pt]}`;
-          entry.appendChild(span);
-
-          if (isAdmin) {
-            const editBtn = document.createElement("button");
-            editBtn.innerHTML = "✏️";
-            editBtn.className = "edit-btn";
-            editBtn.title = "Редактировать";
-            editBtn.onclick = () => editEntry(day, pt);
-            entry.appendChild(editBtn);
-
-            const delBtn = document.createElement("button");
-            delBtn.innerHTML = "🗑️";
-            delBtn.className = "edit-btn danger";
-            delBtn.title = "Удалить";
-            delBtn.onclick = () => deleteEntry(day, pt);
-            entry.appendChild(delBtn);
-          }
-
-          dayBlock.appendChild(entry);
-        });
-
-        output.appendChild(dayBlock);
-      });
-
-      updatePointOptions();
-    }
-
-    function updatePointOptions() {
-      const daySelect = document.getElementById("day");
-      const pointSelect = document.getElementById("point");
-
-      const selectedDay = daySelect.value;
-      if (!selectedDay) {
-        enableAllPoints();
-        return;
-      }
-
-      const takenPoints = e[selectedDay] ? Object.keys(e[selectedDay]) : [];
-
-      for (let i = 0; i < pointSelect.options.length; i++) {
-        const option = pointSelect.options[i];
-        if (option.value === "") continue;
-        option.disabled = takenPoints.includes(option.value);
-      }
-    }
-
-    function enableAllPoints() {
-      const pointSelect = document.getElementById("point");
-      for (let i = 0; i < pointSelect.options.length; i++) {
-        pointSelect.options[i].disabled = false;
-      }
-    }
-
-    async function assignPoint() {
-      const name = document.getElementById("name").value.trim();
-      const day = document.getElementById("day").value;
-      const point = document.getElementById("point").value;
-
-      if (!name) {
-        alert("Введите имя");
-        return;
-      }
-      if (!day) {
-        alert("Выберите день недели");
-        return;
-      }
-      if (!point) {
-        alert("Выберите точку");
-        return;
-      }
-
-      if (!Schedule[day]) Schedule[day] = {};
-      if (Schedule[day][point]) {
-        alert("Эта точка уже занята в выбранный день");
-        return;
-      }
-
-      Schedule[day][point] = name;
-      await saveSchedule();
-      updateDisplay();
-
-      document.getElementById("name").value = "";
-      document.getElementById("day").value = "";
-      document.getElementById("point").value = "";
-      enableAllPoints();
-    }
-
-    async function editEntry(day, point) {
-      const currentName = Schedule[day][point];
-      const newName = prompt(`Редактировать имя для точки "${point}" в ${day}:`, currentName);
-      if (newName === null) return;
-      const trimmed = newName.trim();
-      if (!trimmed) {
-        alert("Имя не может быть пустым");
-        return;
-      }
-      Schedule[day][point] = trimmed;
-      await saveSchedule();
-      updateDisplay();
-    }
-
-    async function deleteEntry(day, point) {
-      if (!confirm(`Удалить запись с точки "${point}" в ${day}?`)) return;
-      delete Schedule[day][point];
-      if (Object.keys(Schedule[day]).length === 0) {
-        delete Schedule[day];
-      }
-      await saveSchedule();
-      updateDisplay();
-    }
-
-    function checkAdmin() {
-      const entered = document.getElementById("adminPass").value;
-      if (entered === password) {
-        isAdmin = true;
-        alert("Вход выполнен успешно");
-        document.getElementById("adminControls").style.display = "block";
-        document.getElementById("adminPass").value = "";
-        updateDisplay();
-      } else {
-        alert("Неверный пароль");
-      }
-    }
-
-    async function resetWeek() {
-      if (!isAdmin) return;
-      if (!confirm("Вы уверены, что хотите сбросить все записи этой недели?")) return;
-
-      try {
-        const response = await fetch(GAS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'reset', week: currentWeekKey })
-        });
-        const data = await response.json();
-        if (data.success) {
-          Schedule = {};
-          updateDisplay();
-          alert("Неделя сброшена");
-        } else {
-          alert("Ошибка при сбросе: " + (data.message || "Неизвестно"));
-        }
-      } catch (e) {
-        alert("Ошибка при сбросе: " + e.message);
-      }
-    }
-
-    async function changeWeek(delta) {
-      weekOffset += delta;
-      await loadSchedule();
-    }
-
-    function toggleTheme() {
-      document.body.classList.toggle("dark");
-      const btn = document.getElementById("themeBtn");
-      if (document.body.classList.contains("dark")) {
-        btn.textContent = "Светлая тема";
-      } else {
-        btn.textContent = "Тёмная тема";
-      }
-    }
-
-    document.getElementById("day").addEventListener("change", updatePointOptions);
-
-    // Инициализация
-    loadSchedule();
-  </script>
+    <!-- ВСЕ НЕОБХОДИМЫЕ JS ФАЙЛЫ В ПРАВИЛЬНОМ ПОРЯДКЕ -->
+    <script src="src/js/data/resources.js"></script>
+    <script src="src/js/data/items.js"></script>
+    <script src="src/js/data/blueprints.js"></script>
+    <script src="src/js/data/npc.js"></script>
+    <script src="src/js/data/initialData.js"></script>
+    
+    <script src="src/js/modules/crafting.js"></script>
+    <script src="src/js/modules/progression.js"></script>
+    <script src="src/js/modules/inventory.js"></script>
+    <script src="src/js/modules/orders.js"></script>
+    <script src="src/js/modules/reforge.js"></script>
+    <script src="src/js/modules/saveSystem.js"></script>
+    
+    <script src="src/js/core/game.js"></script>
+    <script src="src/js/ui/uiManager.js"></script>
+    <script src="src/js/main.js"></script>
 </body>
 </html>
