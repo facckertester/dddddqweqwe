@@ -1,0 +1,1 @@
+@keyframes floatUp{0%{opacity:1;transform:translate(-50%) translateY(0)}70%{opacity:1;transform:translate(-50%) translateY(-30px)}to{opacity:0;transform:translate(-50%) translateY(-50px)}}.floating-message{transition:opacity .3s ease-out}.floating-message.visible{opacity:1}.floating-message.hidden{opacity:0}
